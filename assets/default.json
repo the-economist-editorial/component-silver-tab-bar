@@ -1,0 +1,17 @@
+[
+  {
+    "parent": "Print",
+    "children": [ "Narrow", "Medium", "Wide" ],
+    "note": "Print has 3 sub-styles, corresponding to 1/2/3 columns"
+  },
+  {
+    "parent": "Espresso",
+    "children": [],
+    "note": "Espresso has no sub-styles"
+  },
+  {
+    "parent": "Other",
+    "children": [],
+    "note": "Other has no sub-styles"
+  }
+]
