@@ -24,13 +24,13 @@ export default class SilverTabBar extends React.Component {
     // One 'tab' at a time...
     for (let i = 0; i < cArray.length; i++) {
       const thisDef = cArray[i];
-      // By default, top-level tab button is childless:
+      // By default, top-level tab button is childless
       let parentClass = 'has-nochild';
       let childArray = null;
       let mouseEnterEvent = null;
       let mouseLeaveEvent = null;
       let parentClickEvent = null;
-      // Are there any children?. If so, set class and call
+      // Are there any children? If so, set class and call
       // buildChildMenu to assemble a JSX definition
       const childCount = thisDef.children.length;
       if (childCount > 0) {
