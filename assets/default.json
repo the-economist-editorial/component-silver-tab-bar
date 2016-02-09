@@ -11,7 +11,7 @@
   },
   {
     "parent": "Other",
-    "children": [],
-    "note": "Other has no sub-styles"
+    "children": ["One", "Two"],
+    "note": "Other has 2 sub-styles"
   }
 ]

@@ -13,7 +13,7 @@
   margin:0;
   padding:0;
   height:41px;
-  width:600px;
+  width:100%;
 }
 /* Main topic menu individual "tabs" */
 .topic-menu-nav li {
@@ -29,7 +29,7 @@
   font-size:12px;
   height:40px;
   position:relative;
-  width:33.2%;
+  /*width:33.2%;*/
   z-index:10;
   border-bottom:#d8d9da 1px solid;
 }
@@ -51,7 +51,7 @@
 }
 .topic-menu-nav > li:hover {
   font-weight: bold;
-  color: red;
+  /*color: red;*/
 }
 .topic-menu-nav > li.selected span,
 .topic-menu-nav > li.selected:hover span {
@@ -105,4 +105,48 @@
 }
 .topic-menu-nav li.has-child ul li:hover {
   background-color: #d8d9da;
+}
+
+/* Width setting on parent li elements, lifted from:
+   http://lea.verou.me/2011/01/styling-children-based-on-their-number-with-css3/
+   Handles up to six parent tabs. Widths are slightly below exact division
+ */
+ /* 1 */
+.topic-menu-nav > li:only-child {
+  width: 99.5%;
+}
+/* 2 */
+.topic-menu-nav > li:nth-child(1):nth-last-child(2),
+.topic-menu-nav > li:nth-child(2):nth-last-child(1) {
+  width: 49.5%;
+}
+/* 3 */
+.topic-menu-nav > li:nth-child(1):nth-last-child(3),
+.topic-menu-nav > li:nth-child(2):nth-last-child(2),
+.topic-menu-nav > li:nth-child(3):nth-last-child(1) {
+  width: 33%;
+}
+/* 4 */
+.topic-menu-nav > li:nth-child(1):nth-last-child(4),
+.topic-menu-nav > li:nth-child(2):nth-last-child(3),
+.topic-menu-nav > li:nth-child(3):nth-last-child(2),
+.topic-menu-nav > li:nth-child(4):nth-last-child(1) {
+  width: 24.5%;
+}
+/* 5 */
+.topic-menu-nav > li:nth-child(1):nth-last-child(5),
+.topic-menu-nav > li:nth-child(2):nth-last-child(4),
+.topic-menu-nav > li:nth-child(3):nth-last-child(3),
+.topic-menu-nav > li:nth-child(4):nth-last-child(2),
+.topic-menu-nav > li:nth-child(5):nth-last-child(1) {
+  width: 19.5%;
+}
+/* 6 */
+.topic-menu-nav > li:nth-child(1):nth-last-child(6),
+.topic-menu-nav > li:nth-child(2):nth-last-child(5),
+.topic-menu-nav > li:nth-child(3):nth-last-child(4),
+.topic-menu-nav > li:nth-child(4):nth-last-child(3),
+.topic-menu-nav > li:nth-child(5):nth-last-child(2),
+.topic-menu-nav > li:nth-child(6):nth-last-child(1) {
+  width: 16.25%;
 }

@@ -13,89 +13,38 @@ export default class SilverTabBar extends React.Component {
     };
   }
 
-  // GET SUB CONTEXT
-  // Called from buildContextMenu to assemble children
-  // of one main context 'tab'
-  getSubContext(tabDef) {
-    // Array JSX elements to return
-    const childArray = [];
-    // Append child <li> elements
-    for (let i = 0; i < tabDef.children.length; i++) {
-      const child = tabDef.children[i];
-      const eventObject = {
-        parent: tabDef.parent,
-        child,
-      };
-      childArray.push(
-        <li
-          className="sub-context"
-          key={`${tabDef.parent}-child-${i}`}
-          onClick={this.catchSubContextClick.bind(this, eventObject)}
-        >
-          {tabDef.children[i]}
-        </li>
-      );
-    }
-    return (<ul>
-      {childArray}
-    </ul>);
-  }
-  // GET SUB CONTEXT ends
+  // *** 2 functions construct tab bar with dropdowns ***
 
-  catchMainContextClick(eStr) {
-    const eObj = {
-      parent: eStr,
-    };
-    // NOTE: I need to select the 'tab'
-    console.log(eObj);
-  }
-  // catchSubContextClick(eObj, event) {
-  catchSubContextClick(eObj) {
-    // NOTE: I need to close the dropdown and select the grandparent
-    console.log(eObj);
-  }
-
-  showSubContext(event) {
-    let target = event.target;
-    if (event.target.className === 'sub-context') {
-      target = event.target.parentElement.parentElement;
-    }
-    target.className = 'has-child show-menu';
-  }
-  hideSubContext(event) {
-    let target = event.target;
-    if (event.target.className === 'sub-context') {
-      target = event.target.parentElement.parentElement;
-    }
-    target.className = 'has-child';
-  }
-
-  // onMouseLeave={this.hideSubContext.bind(this)}
-
-  // BUILD CONTEXT MENU
-  // Called from Render to assemble complete JSX content
-  buildContextMenu(cArray) {
+  // BUILD PARENT MENU
+  // Called from Render to assemble complete JSX tab widget
+  // Calls buildChildMenu to append dropdowns
+  buildParentMenu(cArray) {
+    // Array to contain all tab definitions:
     const parentArray = [];
     // One 'tab' at a time...
     for (let i = 0; i < cArray.length; i++) {
       const thisDef = cArray[i];
-      // By default, main context is childless:
+      // By default, top-level tab button is childless:
       let parentClass = 'has-nochild';
       let childArray = null;
       let mouseEnterEvent = null;
       let mouseLeaveEvent = null;
       let parentClickEvent = null;
-      // Are there any children?
+      // Are there any children?. If so, set class and call
+      // buildChildMenu to assemble a JSX definition
       const childCount = thisDef.children.length;
       if (childCount > 0) {
         parentClass = 'has-child';
         mouseEnterEvent = this.showSubContext.bind(this);
         mouseLeaveEvent = this.hideSubContext.bind(this);
-        childArray = this.getSubContext(thisDef);
+        childArray = this.buildChildMenu(thisDef);
       } else {
+        // If parent is childless, it has its own click event:
         parentClickEvent = this.catchMainContextClick.bind(this, thisDef.parent);
       }
-
+      // Append this tab to the array of 'li' tab elements
+      // The dependent 'child' is either null (by default, above)...
+      // or an array that defines the dropdown...
       parentArray.push(
         <li className={parentClass}
           key={`${thisDef.parent}-${i}`}
@@ -115,7 +64,106 @@ export default class SilverTabBar extends React.Component {
       {parentArray}
     </ul>);
   }
-  // BUILD CONTEXT MENU ends
+  // BUILD PARENT MENU ends
+
+  // GET CHILD MENU
+  // Called from buildParentMenu to assemble children
+  // of one parent 'tab'
+  buildChildMenu(tabDef) {
+    // Array of JSX 'li' elements to return
+    const childArray = [];
+    // Append child <li> elements
+    for (let i = 0; i < tabDef.children.length; i++) {
+      const child = tabDef.children[i];
+      const eventObject = {
+        parent: tabDef.parent,
+        child,
+      };
+      childArray.push(
+        <li
+          className="sub-context"
+          key={`${tabDef.parent}-child-${i}`}
+          onClick={this.catchSubContextClick.bind(this, eventObject)}
+        >
+          {tabDef.children[i]}
+        </li>
+      );
+    }
+    // Embed in 'ul' and return
+    return (<ul>
+      {childArray}
+    </ul>);
+  }
+  // GET CHILD MENU ends
+
+  // *** Event watchers on menu system ***
+
+  // CATCH MAIN CONTEXT CLICK
+  // Fields click event on a childless tab
+  // Select tab and dispatch callback to Editor
+  catchMainContextClick(eStr, event) {
+    // Param 1 is the displayed label
+    // Remove existing selection. Grab all siblings
+    // and reset to unselected state:
+    const liArray = event.target.parentElement.children;
+    this.killSelect(liArray);
+    // Now select this tab
+    event.target.className = 'has-nochild selected';
+    // Assemble and dispatch event:
+    const eObj = {
+      parent: eStr,
+    };
+    console.log(eObj);
+  }
+  // CATCH MAIN CONTEXT CLICK ends
+
+  // CATCH SUB CONTEXT CLICK
+  catchSubContextClick(eObj, event) {
+    // Param 1 is an object with parent and child
+    const target = event.target;
+    // NOTE: I need to close the dropdown and select the grandparent
+    // Get the array of parent lis and deselect all:
+    const liArray = target.parentElement.parentElement.parentElement.children;
+    this.killSelect(liArray);
+    // Now select parent of this dropdown
+    target.parentElement.parentElement.className = 'has-child selected';
+    // And close dropdown:
+
+    console.log(eObj);
+  }
+  // CATCH SUB CONTEXT CLICK ends
+
+  // *** Other functions ***
+
+  // KILL SELECT is called from both event-catchers. Passed an
+  // array of 'li' elements, it deletes the 'selected' className
+  killSelect(liArray) {
+    for (let i = 0; i < liArray.length; i++) {
+      const cStr = liArray[i].className.replace('selected', '').trim();
+      liArray[i].className = cStr;
+    }
+  }
+  // KILL SELECT ends
+
+  // SHOW AND HIDE DROP-DOWNS, assigned to mouse-Enter and
+  // -Leave events on parent tabs
+  showSubContext(event) {
+    let target = event.target;
+    if (event.target.className === 'sub-context') {
+      target = event.target.parentElement.parentElement;
+    }
+    target.className = 'has-child show-menu';
+  }
+  hideSubContext(event) {
+    let target = event.target;
+    if (event.target.className === 'sub-context') {
+      target = event.target.parentElement.parentElement;
+    }
+    // Simply remove the 'show-menu' class name
+    const cStr = target.className.replace('show-menu', '').trim();
+    target.className = cStr;
+  }
+  // SHOW AND HIDE DROP-DOWNS end
 
 
   // RENDER
@@ -123,8 +171,9 @@ export default class SilverTabBar extends React.Component {
     // this.props.contextDefinitions is an array of objects, each having
     // properties 'parent' (string) and 'children' (potentially empty array of
     // sub-context names)
-    // By default
-    const contextMenu = this.buildContextMenu(this.props.contextDefinitions);
+    // Assemble complete parent/child tab-bar JSX:
+    const contextMenu = this.buildParentMenu(this.props.contextDefinitions);
+    // Containing div is required
     return (
       <div>{contextMenu}</div>
     );
