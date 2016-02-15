@@ -4,12 +4,9 @@ export default class SilverTabBar extends React.Component {
 
   static get propTypes() {
     return {
-      contextDefinitions: React.PropTypes.array.isRequired,
-    };
-  }
+      tabBarDefinitions: React.PropTypes.array.isRequired,
+      passContextToEditor: React.PropTypes.func.isRequired,
 
-  static get defaultProps() {
-    return {
     };
   }
 
@@ -33,7 +30,8 @@ export default class SilverTabBar extends React.Component {
       // Are there any children? If so, set class and call
       // buildChildMenu to assemble a JSX definition
       const childCount = thisDef.children.length;
-      if (childCount > 0) {
+      // NOTE: allow for one 'default' child...
+      if (childCount > 1) {
         parentClass = 'has-child';
         mouseEnterEvent = this.showSubContext.bind(this);
         mouseLeaveEvent = this.hideSubContext.bind(this);
@@ -41,6 +39,10 @@ export default class SilverTabBar extends React.Component {
       } else {
         // If parent is childless, it has its own click event:
         parentClickEvent = this.catchMainContextClick.bind(this, thisDef.parent);
+      }
+      // Default highlight:
+      if (thisDef.default) {
+        parentClass += ' selected';
       }
       // Append this tab to the array of 'li' tab elements
       // The dependent 'child' is either null (by default, above)...
@@ -53,7 +55,7 @@ export default class SilverTabBar extends React.Component {
           onClick={parentClickEvent}
         >
           <span>
-            {thisDef.parent}
+            {this.toTitleCase(thisDef.parent)}
           </span>
           {childArray}
         </li>
@@ -85,7 +87,7 @@ export default class SilverTabBar extends React.Component {
           key={`${tabDef.parent}-child-${i}`}
           onClick={this.catchSubContextClick.bind(this, eventObject)}
         >
-          {tabDef.children[i]}
+          {this.toTitleCase(tabDef.children[i])}
         </li>
       );
     }
@@ -109,11 +111,13 @@ export default class SilverTabBar extends React.Component {
     this.killSelect(liArray);
     // Now select this tab
     event.target.className = 'has-nochild selected';
-    // Assemble and dispatch event:
+    // Assemble and dispatch event. Childless contexts return a 'default'
+    // child, which is found in the Editor's context node 'widths'
     const eObj = {
       parent: eStr,
+      child: 'default',
     };
-    console.log(eObj);
+    this.props.passContextToEditor(eObj);
   }
   // CATCH MAIN CONTEXT CLICK ends
 
@@ -127,9 +131,7 @@ export default class SilverTabBar extends React.Component {
     this.killSelect(liArray);
     // Now select parent of this dropdown
     target.parentElement.parentElement.className = 'has-child selected';
-    // And close dropdown:
-
-    console.log(eObj);
+    this.props.passContextToEditor(eObj);
   }
   // CATCH SUB CONTEXT CLICK ends
 
@@ -165,14 +167,25 @@ export default class SilverTabBar extends React.Component {
   }
   // SHOW AND HIDE DROP-DOWNS end
 
+  // TO TITLE CASE converts l/c strings to title case for display
+  toTitleCase(string) {
+    let tStr = string;
+    if (string.length > 0) {
+      tStr = string.toLowerCase().split(' ').map((str) => str.charAt(0).toUpperCase() + str.substr(1)).join(' ');
+    }
+    return tStr;
+  }
+  // TO TITLE CASE ends
 
   // RENDER
   render() {
-    // this.props.contextDefinitions is an array of objects, each having
+    // this.props.tabBarDefinitions is an array of objects, each having
     // properties 'parent' (string) and 'children' (potentially empty array of
     // sub-context names)
+    // NOTE: I may have to deal with children that have only 1 element, a
+    // default to use, but which doesn't display a dropdown...
     // Assemble complete parent/child tab-bar JSX:
-    const contextMenu = this.buildParentMenu(this.props.contextDefinitions);
+    const contextMenu = this.buildParentMenu(this.props.tabBarDefinitions);
     // Containing div is required
     return (
       <div>{contextMenu}</div>

@@ -7,7 +7,7 @@
 
 /* Main topic menu */
 .topic-menu-nav {
-  /*background-color:#d8d9da;*/
+  background-color:#fff;
   /*float:left;*/
   list-style:none;
   margin:0;
@@ -107,7 +107,7 @@
   background-color: #d8d9da;
 }
 
-/* Width setting on parent li elements, lifted from: 
+/* Width setting on parent li elements, lifted from:
    http://lea.verou.me/2011/01/styling-children-based-on-their-number-with-css3/
    Handles up to six parent tabs. Widths are slightly below exact division
  */
