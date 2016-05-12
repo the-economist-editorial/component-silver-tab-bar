@@ -1,0 +1,106 @@
+
+/* Tab bar container UL */
+
+.topic-menu-nav {
+  display: flex;
+  width: 100%;
+  height: 41px;
+  margin: 0;
+  padding: 0;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  list-style: none;
+  background-color: fff;
+}
+
+/* Individual "tab" LI */
+
+.topic-menu-tab {
+  float: left;
+  display: block;
+  position: relative;
+  width: 100%;
+  height: 40px;
+  cursor: pointer;
+  font-size: 12px;
+  text-align: center;
+  border-top: #d8d9da 1px solid;
+  border-bottom: #d8d9da 1px solid;
+  z-index: 10;
+}
+
+.topic-menu-tab:not(:first-child) {
+  border-left: #d8d9da 1px solid;
+}
+
+.topic-menu-tab:hover {
+  font-weight: bold;
+  text-decoration: none;
+  background-color: #d8d9da;
+}
+
+/* NOTE: 'selected' status is lost if selected dropdown
+is unfolded but nothing clicked. Actually the red
+text colour is lost when you roll over the selected
+(main) tab again... */
+
+.topic-menu-tab.selected {
+  border-bottom: 0;
+}
+
+/* Tab span */
+
+.topic-menu-tab-span {
+  display: block;
+  height: 28px;
+  padding: 12px 5px 0;
+  color: inherit;
+  font-weight: inherit;
+  text-align: center;
+  text-decoration: none;
+  pointer-events: none;
+}
+
+.topic-menu-tab.selected .topic-menu-tab-span,
+.topic-menu-tab.selected:hover .topic-menu-tab-span {
+  color: #f00;
+  font-weight: bold;
+}
+
+/* Submenu list items */
+
+.topic-menu-dropdown-ul {
+  display: block;
+  position: absolute;
+  top: 41px;
+  left: -1px;
+  width: 100%;
+  height: 0;
+  margin: 0;
+  padding: 0;
+  pointer-events: all;
+}
+
+.topic-menu-dropdown-li {
+  opacity: 0;
+  display: block;
+  width: 100%;
+  height: 0;
+  padding: 0;
+  text-align: center;
+  background-color: #fff;
+  border-right: 1px solid #d8d9da;
+  border-bottom: 1px solid #d8d9da;
+  border-left: #d8d9da 1px solid;
+  transition: all 0.2s ease-out;
+}
+
+.topic-menu-tab.show-menu .topic-menu-dropdown-li {
+  opacity: 1;
+  height: 27px;
+  padding-top: 13px;
+}
+
+.topic-menu-dropdown-li:hover {
+  background-color: #d8d9da;
+}

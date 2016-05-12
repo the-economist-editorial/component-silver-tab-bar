@@ -1,5 +1,6 @@
 import React from 'react';
 
+
 export default class SilverTabBar extends React.Component {
 
   static get propTypes() {
@@ -10,6 +11,31 @@ export default class SilverTabBar extends React.Component {
     };
   }
 
+// Default tab definition for documentation, if nothing else
+  static get defaultProps() {
+    return {
+      tabBarDefinitions: [
+        {
+          'parent': 'Print',
+          'children': [ 'Narrow', 'Medium', 'Wide' ],
+          'note': 'Print has 3 sub-styles, corresponding to 1/2/3 columns',
+        },
+        {
+          'parent': 'Espresso',
+          'children': [],
+          'note': 'Espresso has no sub-styles',
+        },
+      ],
+      // passContextToEditor: () => {},
+    };
+  }
+
+  constructor(...args) {
+    super(...args);
+    this.handleParentClick = this.handleParentClick.bind(this);
+    this.handleChildClick = this.handleChildClick.bind(this);
+  }
+
   // *** 2 functions construct tab bar with dropdowns ***
 
   // BUILD PARENT MENU
@@ -18,11 +44,12 @@ export default class SilverTabBar extends React.Component {
   buildParentMenu(cArray) {
     // Array to contain all tab definitions:
     const parentArray = [];
+    let parentClass = 'topic-menu-tab';
     // One 'tab' at a time...
     for (let i = 0; i < cArray.length; i++) {
       const thisDef = cArray[i];
       // By default, top-level tab button is childless
-      let parentClass = 'has-nochild';
+      parentClass += ' has-nochild';
       let childArray = null;
       let mouseEnterEvent = null;
       let mouseLeaveEvent = null;
@@ -32,13 +59,14 @@ export default class SilverTabBar extends React.Component {
       const childCount = thisDef.children.length;
       // NOTE: allow for one 'default' child...
       if (childCount > 1) {
-        parentClass = 'has-child';
+        parentClass += ' has-child';
         mouseEnterEvent = this.showSubContext.bind(this);
         mouseLeaveEvent = this.hideSubContext.bind(this);
         childArray = this.buildChildMenu(thisDef);
       } else {
         // If parent is childless, it has its own click event:
-        parentClickEvent = this.catchMainContextClick.bind(this, thisDef.parent);
+        // parentClickEvent = this.catchMainContextClick.bind(this, thisDef.parent);
+        parentClickEvent = this.handleParentClick;
       }
       // Default highlight:
       if (thisDef.default) {
@@ -49,12 +77,12 @@ export default class SilverTabBar extends React.Component {
       // or an array that defines the dropdown...
       parentArray.push(
         <li className={parentClass}
-          key={`${thisDef.parent}-${i}`}
+          key={`${ thisDef.parent }-${ i }`}
           onMouseEnter={mouseEnterEvent}
           onMouseLeave={mouseLeaveEvent}
           onClick={parentClickEvent}
         >
-          <span>
+          <span className="topic-menu-tab-span">
             {this.toTitleCase(thisDef.parent)}
           </span>
           {childArray}
@@ -76,23 +104,19 @@ export default class SilverTabBar extends React.Component {
     const childArray = [];
     // Append child <li> elements
     for (let i = 0; i < tabDef.children.length; i++) {
-      const child = tabDef.children[i];
-      const eventObject = {
-        parent: tabDef.parent,
-        child,
-      };
       childArray.push(
         <li
-          className="sub-context"
-          key={`${tabDef.parent}-child-${i}`}
-          onClick={this.catchSubContextClick.bind(this, eventObject)}
+          className="topic-menu-dropdown-li"
+          key={`${ tabDef.parent }-child-${ i }`}
+          // onClick={this.catchSubContextClick.bind(this, eventObject)}
+          onClick = {this.handleChildClick}
         >
           {this.toTitleCase(tabDef.children[i])}
         </li>
       );
     }
     // Embed in 'ul' and return
-    return (<ul>
+    return (<ul className="topic-menu-dropdown-ul">
       {childArray}
     </ul>);
   }
@@ -100,40 +124,42 @@ export default class SilverTabBar extends React.Component {
 
   // *** Event watchers on menu system ***
 
-  // CATCH MAIN CONTEXT CLICK
+  // HANDLE PARENT CLICK
   // Fields click event on a childless tab
   // Select tab and dispatch callback to Editor
-  catchMainContextClick(eStr, event) {
-    // Param 1 is the displayed label
+  handleParentClick(event) {
+    const target = event.target;
+    const parent = target.innerText.toLowerCase().trim();
+    const eventObj = { parent, child: 'default' };
     // Remove existing selection. Grab all siblings
     // and reset to unselected state:
     const liArray = event.target.parentElement.children;
     this.killSelect(liArray);
     // Now select this tab
-    event.target.className = 'has-nochild selected';
+    target.className = 'topic-menu-tab has-nochild selected';
     // Assemble and dispatch event. Childless contexts return a 'default'
     // child, which is found in the Editor's context node 'widths'
-    const eObj = {
-      parent: eStr,
-      child: 'default',
-    };
-    this.props.passContextToEditor(eObj);
+    this.props.passContextToEditor(eventObj);
   }
-  // CATCH MAIN CONTEXT CLICK ends
+  // HANDLE PARENT CLICK ends
 
-  // CATCH SUB CONTEXT CLICK
-  catchSubContextClick(eObj, event) {
-    // Param 1 is an object with parent and child
+  // HANDLE CHILD CLICK
+  handleChildClick(event) {
     const target = event.target;
-    // NOTE: I need to close the dropdown and select the grandparent
+    const gParent = target.parentElement.parentElement;
+    // I need to close the dropdown and select the grandparent
     // Get the array of parent lis and deselect all:
     const liArray = target.parentElement.parentElement.parentElement.children;
     this.killSelect(liArray);
-    // Now select parent of this dropdown
-    target.parentElement.parentElement.className = 'has-child selected';
+    gParent.className = 'topic-menu-tab has-child selected';
+    // Assemble the object to pass up
+    const child = target.innerText.toLowerCase();
+    const ccVal = 10;
+    const parent = gParent.innerText.split(String.fromCharCode(ccVal))[0].toLowerCase();
+    const eObj = { parent, child };
     this.props.passContextToEditor(eObj);
   }
-  // CATCH SUB CONTEXT CLICK ends
+  // HANDLE CHILD CLICK ends
 
   // *** Other functions ***
 
@@ -151,14 +177,14 @@ export default class SilverTabBar extends React.Component {
   // -Leave events on parent tabs
   showSubContext(event) {
     let target = event.target;
-    if (event.target.className === 'sub-context') {
+    if (event.target.className === 'topic-menu-dropdown-li') {
       target = event.target.parentElement.parentElement;
     }
-    target.className = 'has-child show-menu';
+    target.className = 'topic-menu-tab has-child show-menu';
   }
   hideSubContext(event) {
     let target = event.target;
-    if (event.target.className === 'sub-context') {
+    if (event.target.className === 'topic-menu-dropdown-li') {
       target = event.target.parentElement.parentElement;
     }
     // Simply remove the 'show-menu' class name
@@ -168,10 +194,10 @@ export default class SilverTabBar extends React.Component {
   // SHOW AND HIDE DROP-DOWNS end
 
   // TO TITLE CASE converts l/c strings to title case for display
-  toTitleCase(string) {
-    let tStr = string;
-    if (string.length > 0) {
-      tStr = string.toLowerCase().split(' ').map((str) => str.charAt(0).toUpperCase() + str.substr(1)).join(' ');
+  toTitleCase(rawStr) {
+    let tStr = rawStr;
+    if (rawStr.length > 0) {
+      tStr = rawStr.toLowerCase().split(' ').map((str) => str.charAt(0).toUpperCase() + str.substr(1)).join(' ');
     }
     return tStr;
   }
@@ -181,7 +207,7 @@ export default class SilverTabBar extends React.Component {
   render() {
     // this.props.tabBarDefinitions is an array of objects, each having
     // properties 'parent' (string) and 'children' (potentially empty array of
-    // sub-context names)
+    // topic-menu-dropdown-li names)
     // NOTE: I may have to deal with children that have only 1 element, a
     // default to use, but which doesn't display a dropdown...
     // Assemble complete parent/child tab-bar JSX:
