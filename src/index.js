@@ -6,7 +6,7 @@ export default class SilverTabBar extends React.Component {
   static get propTypes() {
     return {
       tabBarDefinitions: React.PropTypes.array.isRequired,
-      passContextToEditor: React.PropTypes.func.isRequired,
+      passPlatformToEditor: React.PropTypes.func.isRequired,
 
     };
   }
@@ -19,14 +19,22 @@ export default class SilverTabBar extends React.Component {
           'parent': 'Print',
           'children': [ 'Narrow', 'Medium', 'Wide' ],
           'note': 'Print has 3 sub-styles, corresponding to 1/2/3 columns',
+          'default': true,
         },
         {
           'parent': 'Espresso',
           'children': [],
           'note': 'Espresso has no sub-styles',
+          'default': false,
+        },
+        {
+          'parent': 'Other',
+          'children': [ 'One', 'Two' ],
+          'note': 'Other has two sub-styles',
+          'default': false,
         },
       ],
-      // passContextToEditor: () => {},
+      // passPlatformToEditor: () => {},
     };
   }
 
@@ -44,12 +52,11 @@ export default class SilverTabBar extends React.Component {
   buildParentMenu(cArray) {
     // Array to contain all tab definitions:
     const parentArray = [];
-    let parentClass = 'topic-menu-tab';
     // One 'tab' at a time...
     for (let i = 0; i < cArray.length; i++) {
+      let parentClass = 'topic-menu-tab';
       const thisDef = cArray[i];
       // By default, top-level tab button is childless
-      parentClass += ' has-nochild';
       let childArray = null;
       let mouseEnterEvent = null;
       let mouseLeaveEvent = null;
@@ -64,6 +71,7 @@ export default class SilverTabBar extends React.Component {
         mouseLeaveEvent = this.hideSubContext.bind(this);
         childArray = this.buildChildMenu(thisDef);
       } else {
+        parentClass += ' has-nochild';
         // If parent is childless, it has its own click event:
         // parentClickEvent = this.catchMainContextClick.bind(this, thisDef.parent);
         parentClickEvent = this.handleParentClick;
@@ -132,14 +140,14 @@ export default class SilverTabBar extends React.Component {
     const parent = target.innerText.toLowerCase().trim();
     const eventObj = { parent, child: 'default' };
     // Remove existing selection. Grab all siblings
-    // and reset to unselected state:
+    // and reset to unselected:
     const liArray = event.target.parentElement.children;
     this.killSelect(liArray);
     // Now select this tab
     target.className = 'topic-menu-tab has-nochild selected';
     // Assemble and dispatch event. Childless contexts return a 'default'
     // child, which is found in the Editor's context node 'widths'
-    this.props.passContextToEditor(eventObj);
+    this.props.passPlatformToEditor(eventObj);
   }
   // HANDLE PARENT CLICK ends
 
@@ -157,7 +165,7 @@ export default class SilverTabBar extends React.Component {
     const ccVal = 10;
     const parent = gParent.innerText.split(String.fromCharCode(ccVal))[0].toLowerCase();
     const eObj = { parent, child };
-    this.props.passContextToEditor(eObj);
+    this.props.passPlatformToEditor(eObj);
   }
   // HANDLE CHILD CLICK ends
 

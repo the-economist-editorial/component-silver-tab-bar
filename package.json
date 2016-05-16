@@ -66,7 +66,7 @@
   "config": {
     "doc": {
       "js": {
-        "options": "-d -t babelify -x react/lib/ReactContext -x react/lib/ExecutionEnvironment -r react -r react-dom -r ./src/example.js:example"
+        "options": "-d -t babelify -x react/addons -x react/lib/ReactContext -x react/lib/ExecutionEnvironment -r react -r react-dom -r ./src/example.js:example"
       },
       "html": {
         "files": "@economist/doc-pack/templates/index.hbs @economist/doc-pack/templates/standalone.hbs"
@@ -79,11 +79,6 @@
       "pre-commit": "npm run lint",
       "commit-msg": "validate-commit-msg"
     }
-  },
-  "browserify": {
-    "transform": [
-      "babelify"
-    ]
   },
   "babel": {
     "compact": false,
@@ -110,7 +105,7 @@
   },
   "devDependencies": {
     "@economist/doc-pack": "^1.0.7",
-    "@economist/provision-react-component": "3.0.2",
+    "@economist/provision-react-component": "3.0.3",
     "babel-cli": "^6.6.5",
     "babel-core": "^6.7.4",
     "babel-polyfill": "^6.7.4",
