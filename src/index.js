@@ -6,7 +6,7 @@ export default class SilverTabBar extends React.Component {
   static get propTypes() {
     return {
       tabBarDefinitions: React.PropTypes.array.isRequired,
-      passPlatformToEditor: React.PropTypes.func.isRequired,
+      onPassPlatformToEditor: React.PropTypes.func.isRequired,
 
     };
   }
@@ -34,7 +34,7 @@ export default class SilverTabBar extends React.Component {
           'default': false,
         },
       ],
-      // passPlatformToEditor: () => {},
+      // onPassPlatformToEditor: () => {},
     };
   }
 
@@ -147,7 +147,7 @@ export default class SilverTabBar extends React.Component {
     target.className = 'topic-menu-tab has-nochild selected';
     // Assemble and dispatch event. Childless contexts return a 'default'
     // child, which is found in the Editor's context node 'widths'
-    this.props.passPlatformToEditor(eventObj);
+    this.props.onPassPlatformToEditor(eventObj);
   }
   // HANDLE PARENT CLICK ends
 
@@ -165,7 +165,7 @@ export default class SilverTabBar extends React.Component {
     const ccVal = 10;
     const parent = gParent.innerText.split(String.fromCharCode(ccVal))[0].toLowerCase();
     const eObj = { parent, child };
-    this.props.passPlatformToEditor(eObj);
+    this.props.onPassPlatformToEditor(eObj);
   }
   // HANDLE CHILD CLICK ends
 
