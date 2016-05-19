@@ -27,6 +27,7 @@
   border-top: #d8d9da 1px solid;
   border-bottom: #d8d9da 1px solid;
   z-index: 10;
+  pointer-events: all;
 }
 
 .topic-menu-tab:not(:first-child) {
